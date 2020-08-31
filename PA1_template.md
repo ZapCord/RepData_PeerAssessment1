@@ -7,26 +7,64 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 activity<-read.csv("activity.csv")
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 totalsteps<-tapply(activity$steps,activity$date,function(x) sum(x,na.rm=TRUE))
 hist(totalsteps, main="Total steps in a day frequency", 
      xlab="Steps in a day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 meansteps<-mean(totalsteps)
 medsteps<-median(totalsteps)
 print(paste("The average daily total stepcount is: ", toString(meansteps),sep=" "))
+```
+
+```
+## [1] "The average daily total stepcount is:  9354.22950819672"
+```
+
+```r
 print(paste("The median daily total stepcount is: ", toString(medsteps),sep=" "))
 ```
 
+```
+## [1] "The median daily total stepcount is:  10395"
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 library(ggplot2)
 
 averageactivity<-tapply(activity$steps,activity$interval, function(x) mean(x,na.rm=TRUE))
@@ -38,21 +76,34 @@ p<-ggplot(data=averageactivity, aes(x=interval, y=average_steps)) + geom_line() 
   labs(title = "Average Steps vs Time Interval",
        x="Time Interval (min)", y="Average Steps")
 p
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
 max_steps_interval<-averageactivity$interval[which.max(averageactivity$average_steps)]
 print(paste("The interval with maximum steps is on average: ", toString(max_steps_interval),sep=" "))
+```
 
+```
+## [1] "The interval with maximum steps is on average:  835"
 ```
 
 
 ## Imputing missing values
 Using the average steps in an interval to fill in the NAs in the dataset
-```{r}
 
+```r
 NA_places <- is.na(activity$steps)
 total_NAs <- sum(NA_places)
 print(paste("The total NAs is",toString(total_NAs),sep=" "))
+```
 
+```
+## [1] "The total NAs is 2304"
+```
+
+```r
 ## Find the interval that corresponds to the NAs
 intervals <- activity$interval[NA_places]
 
@@ -82,23 +133,50 @@ names(replaced_activity)<-c("steps","date","interval")
 totalreplacedsteps<-tapply(replaced_activity$steps,replaced_activity$date,sum)
 hist(totalreplacedsteps, main="Total steps in a day, NA replaced set",
      xlab="Steps in a day")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 meanreplacedsteps<-mean(totalreplacedsteps)
 medreplacedsteps<-median(totalreplacedsteps)
 print(paste("The average daily total stepcount from new dataframe is: ", 
             toString(meanreplacedsteps),sep=" "))
+```
+
+```
+## [1] "The average daily total stepcount from new dataframe is:  10766.1886792453"
+```
+
+```r
 print(paste("The median daily total stepcount from new dataframe is: ", 
             toString(medreplacedsteps),sep=" "))
+```
 
-
+```
+## [1] "The median daily total stepcount from new dataframe is:  10766.1886792453"
 ```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 library(chron)
 library(gridExtra)
+```
 
+```
+## 
+## Attaching package: 'gridExtra'
+```
+
+```
+## The following object is masked from 'package:dplyr':
+## 
+##     combine
+```
+
+```r
 ## adding a column to dataframe for the weekdays
 replaced_activity<-cbind(replaced_activity,weekdays(as.Date(replaced_activity$date)))
 names(replaced_activity)<-c("steps","date","interval","day")
@@ -130,3 +208,5 @@ q<-ggplot(data=averageendactivity, aes(x=interval, y=average_steps)) + geom_line
 
 grid.arrange(p,q,ncol=1)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
